@@ -1,0 +1,44 @@
+- name: Install package for grafana
+  apt:
+    name:
+      - apt-transport-https
+      - software-properties-common
+      - wget
+    state: present
+    update_cache: yes
+
+- name: Create keyring directory
+  file:
+    path: /etc/apt/keyrings
+    state: directory
+    mode: '0755'
+
+- name: Download Grafana GPG key
+  get_url:
+    url: https://apt.grafana.com/gpg.key
+    dest: /tmp/grafana.key
+    timeout: 600
+    force: no
+
+- name: Convert GPG key 
+  command: gpg --dearmor -o /etc/apt/keyrings/grafana.gpg /tmp/grafana.key
+  args:
+    creates: /etc/apt/keyrings/grafana.gpg
+
+- name: Add Grafana repository
+  copy:
+    dest: /etc/apt/sources.list.d/grafana.list
+    content: |
+      deb [signed-by=/etc/apt/keyrings/grafana.gpg] https://apt.grafana.com stable main
+
+- name: Install Grafana
+  apt:
+    name: grafana
+    state: present
+    update_cache: yes
+
+- name: Start Grafana service
+  systemd:
+    name: grafana-server
+    state: started
+    enabled: yes

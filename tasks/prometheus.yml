@@ -1,0 +1,74 @@
+- name: Create directory for prometheus 1
+  file: 
+    path: /var/lib/prometheus
+    state: directory
+    owner: user
+
+- name: Create directory for prometheus 2
+  file:
+    path: /etc/prometheus
+    state: directory
+    owner: user
+
+- name: Download prometheus
+  get_url:
+    url: https://github.com/prometheus/prometheus/releases/download/v2.54.0/prometheus-2.54.0.linux-amd64.tar.gz
+    dest: /tmp
+    timeout: 600
+    force: no
+
+- name: Extract prometheus
+  unarchive:
+    src: /tmp/prometheus-2.54.0.linux-amd64.tar.gz
+    dest: /tmp
+    remote_src: yes
+
+- name: Copy prometheus binary to /usr/local/bin
+  copy:
+    src: /tmp/prometheus-2.54.0.linux-amd64/prometheus
+    dest: /usr/local/bin/prometheus
+    remote_src: yes
+    mode: '0755' #ensure the binary is executable
+
+- name: Copy Prometheus config template files
+  copy:
+    src: /tmp/prometheus-2.54.0.linux-amd64/prometheus.yml
+    dest: /etc/prometheus/prometheus.yml
+    remote_src: yes
+
+- name: Copy consoles directory
+  copy:
+    src: /tmp/prometheus-2.54.0.linux-amd64/consoles/
+    dest: /etc/prometheus/consoles/
+    remote_src: yes
+
+- name: Copy console libraries directory
+  copy:
+    src: /tmp/prometheus-2.54.0.linux-amd64/console_libraries/
+    dest: /etc/prometheus/console_libraries/
+    remote_src: yes
+
+- name: Add prometheus to systemd
+  template:
+    src: ../templates/prometheus.service.j2
+    dest: /etc/systemd/system/prometheus.service
+
+- name: Create directory for prometheus target
+  template:
+    src: ../templates/prometheus.yml.j2
+    dest: /etc/prometheus/prometheus.yml
+
+- name: Reload systemd
+  systemd:
+    daemon_reload: yes
+
+- name: Start service and enable it
+  systemd:
+    name: prometheus.service
+    state: started
+    enabled: yes
+
+- name: Restart prometheus
+  systemd:
+    name: prometheus.service
+    state: restarted

@@ -1,0 +1,62 @@
+---
+- name: Creating preload directory
+  hosts: mpi
+  become: true
+
+  tasks:
+    - name: Create preload directory
+      file:
+        path: /var/lib/node_exporter/textfile_collector
+        state: directory
+        owner: user
+        group: user
+        mode: "0755"
+    
+    - name: Create preload file
+      file : 
+        path: /var/lib/node_exporter/textfile_collector/mpi_metrics.prom
+        state: touch
+        owner: user
+        group: user
+        mode: "0644"
+
+    - name : Create tmp preload file
+      file :
+        path: /var/lib/node_exporter/textfile_collector/mpi_metrics.prom.tmp
+        state: touch
+        owner: user
+        group: user
+        mode: "0644"
+
+    - name: Copy wrapper generator script
+      copy:
+        src: ../templates/wrapper_gen.py
+        dest: /usr/local/bin/wrapper_gen.py
+        owner: user
+        group: user
+        mode: "0755"
+
+    - name: Copy wrapper config file
+      copy:
+        src: ../templates/config_wrapper.yml
+        dest: /usr/local/bin/config_wrapper.yml
+        owner: user
+        group: user
+        mode: "0644"
+
+    - name: Generate mpi_monitoring C file
+      command: python3 wrapper_gen.py
+      args:
+        chdir: /usr/local/bin
+
+    - name: Compile mpi_monitoring shared library
+      command: mpicc -shared -fPIC -O2 -o libmpi_monitor.so mpi_monitoring_generated.c -lpthread
+      args:
+        chdir: /usr/local/bin
+
+    - name: Ensure generated wrapper files are readable
+      file:
+        path: /usr/local/bin/libmpi_monitor.so
+        owner: user
+        group: user
+        mode: "0755"

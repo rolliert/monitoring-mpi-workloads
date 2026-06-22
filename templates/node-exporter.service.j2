@@ -1,0 +1,14 @@
+[Unit]
+Description=Node Exporter
+After=network.target
+
+[Service]
+User=user
+Group=user
+Type=simple
+ExecStart=/usr/local/bin/node_exporter  --collector.textfile.directory=/var/lib/node_exporter/textfile_collector
+
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

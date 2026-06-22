@@ -1,0 +1,22 @@
+---
+- name: Install global mpi 
+  hosts: mpi
+  become: true
+
+  tasks:
+    - name: Install package
+      apt:
+        name:
+          - openmpi-bin
+          - libopenmpi-dev
+          - build-essential
+          - python3-mpi4py
+          - openssh-server
+          - python3-numpy
+          - python3-yaml
+        state: present
+        update_cache: yes
+
+    - import_tasks: ../tasks/node_exporter.yml
+    - import_tasks: ../tasks/script_import.yml
+

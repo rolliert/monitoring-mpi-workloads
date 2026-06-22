@@ -1,0 +1,36 @@
+- name: Download node exporter
+  get_url:
+    url: https://github.com/prometheus/node_exporter/releases/download/v1.8.2/node_exporter-1.8.2.linux-amd64.tar.gz
+    dest: /tmp
+    timeout: 600
+    force: no
+
+- name: Extract node exporter
+  unarchive:
+    src: /tmp/node_exporter-1.8.2.linux-amd64.tar.gz
+    dest: /tmp
+    remote_src: yes
+
+- name: Move node exporter binary to /usr/local/bin
+  command: mv /tmp/node_exporter-1.8.2.linux-amd64/node_exporter /usr/local/bin/
+
+- name: Add node exporter to systemd
+  template:
+    src: ../templates/node-exporter.service.j2
+    dest: /etc/systemd/system/node-exporter.service
+
+- name: Reload systemd
+  systemd:
+    daemon_reload: yes
+
+- name: Start service and enable it
+  systemd:
+    name: node-exporter.service
+    state: started
+    enabled: yes
+
+#- name: Verify node_exporter listens on port 9100
+ # wait_for:
+  #  host: 127.0.0.1
+   # port: 9100
+    #timeout: 30

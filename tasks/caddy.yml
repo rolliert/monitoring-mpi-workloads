@@ -1,0 +1,54 @@
+- name: Install package for caddy
+  apt:
+    name:
+      - curl
+      - gnupg
+    state: present
+    update_cache: yes
+
+- name: Create keyring directory for caddy
+  file:
+    path: /usr/share/keyrings
+    state: directory
+    mode: '0755'
+
+- name: Download caddy GPG key
+  get_url:
+    url: https://dl.cloudsmith.io/public/caddy/stable/gpg.key
+    dest: /tmp/caddy.key
+    timeout: 600
+    force: no
+
+- name: Convert GPG key for caddy
+  command: gpg --dearmor -o /usr/share/keyrings/caddy-stable-archive-keyring.gpg /tmp/caddy.key
+  args:
+    creates: /usr/share/keyrings/caddy-stable-archive-keyring.gpg
+
+- name: Add caddy repository
+  get_url:
+    url: https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt
+    dest: /etc/apt/sources.list.d/caddy-stable.list
+    timeout: 600
+    force: no
+
+- name: Install caddy
+  apt:
+    name: caddy
+    state: present
+    update_cache: yes
+
+- name: Start caddy service
+  systemd:
+    name: caddy
+    state: started
+    enabled: yes
+
+- name: Create Caddyfile
+  template:
+    src: ../templates/Caddyfile.j2
+    dest: /etc/caddy/Caddyfile
+
+- name: Reload Caddy
+  systemd:
+    name: caddy
+    state: reloaded
