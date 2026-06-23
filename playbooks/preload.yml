@@ -8,40 +8,40 @@
       file:
         path: /var/lib/node_exporter/textfile_collector
         state: directory
-        owner: user
-        group: user
+        owner: "{{ target_user }}"
+        group: "{{ target_user }}"
         mode: "0755"
     
     - name: Create preload file
       file : 
         path: /var/lib/node_exporter/textfile_collector/mpi_metrics.prom
         state: touch
-        owner: user
-        group: user
+        owner: "{{ target_user }}"
+        group: "{{ target_user }}"
         mode: "0644"
 
     - name : Create tmp preload file
       file :
         path: /var/lib/node_exporter/textfile_collector/mpi_metrics.prom.tmp
         state: touch
-        owner: user
-        group: user
+        owner: "{{ target_user }}"
+        group: "{{ target_user }}"
         mode: "0644"
 
     - name: Copy wrapper generator script
       copy:
         src: ../templates/wrapper_gen.py
         dest: /usr/local/bin/wrapper_gen.py
-        owner: user
-        group: user
+        owner: "{{ target_user }}"
+        group: "{{ target_user }}"
         mode: "0755"
 
     - name: Copy wrapper config file
       copy:
         src: ../templates/config_wrapper.yml
         dest: /usr/local/bin/config_wrapper.yml
-        owner: user
-        group: user
+        owner: "{{ target_user }}"
+        group: "{{ target_user }}"
         mode: "0644"
 
     - name: Generate mpi_monitoring C file
@@ -57,6 +57,6 @@
     - name: Ensure generated wrapper files are readable
       file:
         path: /usr/local/bin/libmpi_monitor.so
-        owner: user
-        group: user
+        owner: "{{ target_user }}"
+        group: "{{ target_user }}"
         mode: "0755"

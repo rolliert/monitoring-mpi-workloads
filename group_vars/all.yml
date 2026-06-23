@@ -1,0 +1,2 @@
+target_user: "{{ ansible_user }}"
+target_home: "/home/{{ target_user }}"

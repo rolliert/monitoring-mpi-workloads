@@ -2,13 +2,15 @@
   file: 
     path: /var/lib/prometheus
     state: directory
-    owner: user
-
+    owner: "{{ target_user }}"
+    group: "{{ target_user }}"
+    
 - name: Create directory for prometheus 2
   file:
     path: /etc/prometheus
     state: directory
-    owner: user
+    owner: "{{ target_user }}"
+    group: "{{ target_user }}"
 
 - name: Download prometheus
   get_url:

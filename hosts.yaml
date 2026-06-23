@@ -3,32 +3,15 @@ all:
     monitor:
       hosts:
         monitoring:
-          ansible_host: 192.168.100.10
-          ansible_user: user
-          ansible_ssh_private_key_file: /home/user/.ssh/ansible_key
+          ansible_host: 192.168.123.101
+          ansible_user: ubuntu
+          ansible_ssh_private_key_file: /home/user/.ssh/github_master
 
     mpi:
       children:
         master:
           hosts:
             vm1:
-              ansible_host: 192.168.100.11
-              ansible_user: user
-              ansible_ssh_private_key_file: /home/user/.ssh/ansible_key
-
-        slave:
-          hosts:
-            vm2:
-              ansible_host: 192.168.100.12
-              ansible_user: user
-              ansible_ssh_private_key_file: /home/user/.ssh/ansible_key
-
-            vm3:
-              ansible_host: 192.168.100.13
-              ansible_user: user
-              ansible_ssh_private_key_file: /home/user/.ssh/ansible_key
-
-            vm4:
-              ansible_host: 192.168.100.14
-              ansible_user: user
-              ansible_ssh_private_key_file: /home/user/.ssh/ansible_key
+              ansible_host: 192.168.123.102
+              ansible_user: ubuntu
+              ansible_ssh_private_key_file: /home/user/.ssh/github_master

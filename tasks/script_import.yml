@@ -1,14 +1,14 @@
 - name: Create scripts directory
   file:
-    path: /home/user/scripts
+    path: /home/"{{ target_user }}"/scripts
     state: directory
-    owner: user
-    group: user
+    owner: "{{ target_user }}"
+    group: "{{ target_user }}"
     mode: '0755'
     
 - name: download script folder from ansible
   synchronize:
     src: ../scripts/
-    dest: /home/user/scripts/
+    dest: /home/"{{ target_user }}"/scripts/
     mode: push
   
