@@ -4,7 +4,7 @@
   tasks:
     - name: Ensure .ssh directory exists
       ansible.builtin.file:
-        path: /home/"{{ target_user }}"/.ssh
+        path: "/home/{{ target_user }}/.ssh"
         state: directory
         mode: '0700'
         owner: "{{ target_user }}"
@@ -12,7 +12,7 @@
 
     - name: Generate SSH key pair for MPI
       ansible.builtin.openssh_keypair:
-        path: /home/"{{ target_user }}"/.ssh/id_rsa
+        path: "/home/{{ target_user }}/.ssh/id_rsa"
         type: rsa
         size: 2048
         mode: '0600'
@@ -21,7 +21,7 @@
 
     - name: Read the public key
       ansible.builtin.slurp:
-        src: /home/"{{ target_user }}"/.ssh/id_rsa.pub
+        src: "/home/{{ target_user }}/.ssh/id_rsa.pub"
       register: public_key
 
     - name: Set fact for public key content
@@ -29,7 +29,7 @@
         mpi_public_key: "{{ public_key.content | b64decode }}"
 
     - name: Add slave host keys to known_hosts
-      ansible.builtin.shell: ssh-keyscan -H {{ hostvars[item].ansible_host }} >> /home/"{{ target_user }}"/.ssh/known_hosts
+      ansible.builtin.shell: ssh-keyscan -H {{ hostvars[item].ansible_host }} >> "/home/{{ target_user }}/.ssh/known_hosts"
       loop: "{{ groups['slave'] }}"
       become_user: "{{ target_user }}"
       changed_when: false
@@ -45,7 +45,7 @@
   tasks:
     - name: Ensure .ssh directory exists
       ansible.builtin.file:
-        path: /home/"{{ target_user }}"/.ssh
+        path: "/home/{{ target_user }}/.ssh"
         state: directory
         mode: '0700'
         owner: "{{ target_user }}"

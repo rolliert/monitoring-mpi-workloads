@@ -1,6 +1,6 @@
 - name: Create scripts directory
   file:
-    path: /home/"{{ target_user }}"/scripts
+    path: "/home/{{ target_user }}/scripts"
     state: directory
     owner: "{{ target_user }}"
     group: "{{ target_user }}"
@@ -9,6 +9,6 @@
 - name: download script folder from ansible
   synchronize:
     src: ../scripts/
-    dest: /home/"{{ target_user }}"/scripts/
+    dest: "/home/{{ target_user }}/scripts/"
     mode: push
   
