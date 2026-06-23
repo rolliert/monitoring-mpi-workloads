@@ -4,8 +4,8 @@ Wants=network.target
 After=network.target
 
 [Service]
-User=user
-Group=user
+User={{ target_user }}
+Group={{ target_user }}
 Type=simple
 
 ExecStart=/usr/local/bin/prometheus --config.file=/etc/prometheus/prometheus.yml --storage.tsdb.path=/var/lib/prometheus

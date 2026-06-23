@@ -3,8 +3,8 @@ Description=Node Exporter
 After=network.target
 
 [Service]
-User=user
-Group=user
+User={{ target_user }}
+Group={{ target_user }}
 Type=simple
 ExecStart=/usr/local/bin/node_exporter  --collector.textfile.directory=/var/lib/node_exporter/textfile_collector
 
