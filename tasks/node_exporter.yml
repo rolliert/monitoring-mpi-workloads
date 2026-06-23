@@ -28,9 +28,3 @@
     name: node-exporter.service
     state: started
     enabled: yes
-
-#- name: Verify node_exporter listens on port 9100
- # wait_for:
-  #  host: 127.0.0.1
-   # port: 9100
-    #timeout: 30
