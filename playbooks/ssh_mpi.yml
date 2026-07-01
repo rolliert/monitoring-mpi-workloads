@@ -28,15 +28,15 @@
       ansible.builtin.set_fact:
         mpi_public_key: "{{ public_key.content | b64decode }}"
 
-    - name: Add slave host keys to known_hosts
+    - name: Add worker host keys to known_hosts
       ansible.builtin.shell: ssh-keyscan -H {{ hostvars[item].ansible_host }} >> "/home/{{ target_user }}/.ssh/known_hosts"
-      loop: "{{ groups['slave'] }}"
+      loop: "{{ groups['worker'] }}"
       become_user: "{{ target_user }}"
       changed_when: false
 
 
-- name: Distribute SSH public key to slaves
-  hosts: slave
+- name: Distribute SSH public key to workers
+  hosts: worker
   become: true
 
   vars:
