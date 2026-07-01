@@ -15,3 +15,20 @@ all:
               ansible_host: 192.168.123.102
               ansible_user: ubuntu
               ansible_ssh_private_key_file: /home/ubuntu/.ssh/github_master
+        
+        worker:
+          hosts:
+            vm4:
+              ansible_host: 192.168.123.103
+              ansible_user: ubuntu
+              ansible_ssh_private_key_file: /home/ubuntu/.ssh/github_master
+
+            vm5:
+              ansible_host: 192.168.123.104
+              ansible_user: ubuntu
+              ansible_ssh_private_key_file: /home/ubuntu/.ssh/github_master
+
+            vm6:
+              ansible_host: 192.168.123.105
+              ansible_user: ubuntu
+              ansible_ssh_private_key_file: /home/ubuntu/.ssh/github_master
