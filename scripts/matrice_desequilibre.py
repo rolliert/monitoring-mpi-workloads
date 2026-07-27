@@ -6,7 +6,7 @@ rank = comm.Get_rank()
 size = comm.Get_size()
 
 N = 1800
-ITERATIONS = 8
+ITERATIONS = 1
 
 # Rank 0 receives 55% of the rows.
 rows_per_rank = [990, 270, 270, 270]
@@ -34,8 +34,6 @@ for iteration in range(ITERATIONS):
     start = MPI.Wtime()
 
     local_C = local_A @ B
-    global_C = np.empty((N, N)) if rank == 0 else None
-    comm.Gatherv(local_C, [global_C, counts, displacements, MPI.DOUBLE], root=0)
 
     local_sum = np.array(local_C.sum())
     global_sum = np.array(0.0)
@@ -46,3 +44,10 @@ for iteration in range(ITERATIONS):
 
     if rank == 0:
         print(f"Iteration {iteration + 1}: {times}")
+
+
+global_C = np.empty((N, N)) if rank == 0 else None
+comm.Gatherv(local_C, [global_C, counts, displacements, MPI.DOUBLE], root=0)
+
+if rank == 0:
+    print("Matrice C reconstituée")
