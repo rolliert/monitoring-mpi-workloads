@@ -56,27 +56,22 @@ for iteration in range(ITERATIONS):
     bcast_time = 0.0
 
     for k in range(0, N, BLOCK_SIZE):
-        block_rows = min(BLOCK_SIZE, N - k)
-
         if rank == 0:
-            B_block = B[k:k + block_rows, :]
+            B_block = B[k:k + BLOCK_SIZE, :]
         else:
-            B_block = np.empty((block_rows, N))
+            B_block = np.empty((BLOCK_SIZE, N))
 
-        # Mesure des communications MPI_Bcast
         bcast_start = MPI.Wtime()
         comm.Bcast(B_block, root=0)
         bcast_time += MPI.Wtime() - bcast_start
 
-        # Mesure du calcul matriciel local
         compute_start = MPI.Wtime()
-        local_C += local_A[:, k:k + block_rows] @ B_block
+        local_C += local_A[:, k:k + BLOCK_SIZE] @ B_block
         compute_time += MPI.Wtime() - compute_start
 
     local_sum = np.array(local_C.sum())
     global_sum = np.array(0.0)
 
-    # Mesure de MPI_Allreduce
     allreduce_start = MPI.Wtime()
     comm.Allreduce(local_sum, global_sum, op=MPI.SUM)
     allreduce_time = MPI.Wtime() - allreduce_start
