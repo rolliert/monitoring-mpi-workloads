@@ -6,7 +6,7 @@ rank = comm.Get_rank()
 size = comm.Get_size()
 
 N = 8000
-ITERATIONS = 1
+ITERATIONS = 10
 
 # Rank 0 receives 55% of the rows.
 rows_per_rank = [4400, 1200, 1200, 1200]

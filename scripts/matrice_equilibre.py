@@ -6,7 +6,7 @@ rank = comm.Get_rank()
 size = comm.Get_size()
 
 N = 8000
-ITERATIONS = 1
+ITERATIONS = 10
 
 rows = N // size
 
