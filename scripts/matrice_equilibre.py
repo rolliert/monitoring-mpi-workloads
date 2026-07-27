@@ -11,6 +11,7 @@ ITERATIONS = 10
 rows = N // size
 
 if rank == 0:
+    np.random.seed(42)
     A = np.random.rand(N, N)
     B = np.random.rand(N, N)
 else:

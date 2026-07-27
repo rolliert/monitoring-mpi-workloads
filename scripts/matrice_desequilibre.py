@@ -18,6 +18,7 @@ displacements = np.array([0, counts[0], counts[0] + counts[1],
 local_rows = rows_per_rank[rank]
 
 if rank == 0:
+    np.random.seed(42)
     A = np.random.rand(N, N)
     B = np.random.rand(N, N)
 else:

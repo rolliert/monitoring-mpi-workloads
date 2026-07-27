@@ -23,6 +23,7 @@ displacements = np.array([
 ], dtype=int)
 
 if rank == 0:
+    np.random.seed(42)
     A = np.random.rand(N, N)
     B = np.random.rand(N, N)
     print(f"Lignes par processus : {rows_per_rank}")
@@ -49,28 +50,50 @@ for iteration in range(ITERATIONS):
     local_C = np.zeros((local_rows, N))
 
     comm.Barrier()
-    start = MPI.Wtime()
+    total_start = MPI.Wtime()
+
+    compute_time = 0.0
+    bcast_time = 0.0
 
     for k in range(0, N, BLOCK_SIZE):
+        block_rows = min(BLOCK_SIZE, N - k)
+
         if rank == 0:
-            B_block = B[k:k + BLOCK_SIZE, :]
+            B_block = B[k:k + block_rows, :]
         else:
-            B_block = np.empty((BLOCK_SIZE, N))
+            B_block = np.empty((block_rows, N))
 
+        # Mesure des communications MPI_Bcast
+        bcast_start = MPI.Wtime()
         comm.Bcast(B_block, root=0)
+        bcast_time += MPI.Wtime() - bcast_start
 
-        local_C += local_A[:, k:k + BLOCK_SIZE] @ B_block
+        # Mesure du calcul matriciel local
+        compute_start = MPI.Wtime()
+        local_C += local_A[:, k:k + block_rows] @ B_block
+        compute_time += MPI.Wtime() - compute_start
 
     local_sum = np.array(local_C.sum())
     global_sum = np.array(0.0)
 
+    # Mesure de MPI_Allreduce
+    allreduce_start = MPI.Wtime()
     comm.Allreduce(local_sum, global_sum, op=MPI.SUM)
+    allreduce_time = MPI.Wtime() - allreduce_start
 
-    elapsed = MPI.Wtime() - start
-    times = comm.gather(elapsed, root=0)
+    total_time = MPI.Wtime() - total_start
+
+    compute_times = comm.gather(compute_time, root=0)
+    bcast_times = comm.gather(bcast_time, root=0)
+    allreduce_times = comm.gather(allreduce_time, root=0)
+    total_times = comm.gather(total_time, root=0)
 
     if rank == 0:
-        print(f"Iteration {iteration + 1}: {times}")
+        print(f"Iteration {iteration + 1}")
+        print(f"  Calcul    : {compute_times}")
+        print(f"  Bcast     : {bcast_times}")
+        print(f"  Allreduce : {allreduce_times}")
+        print(f"  Total     : {total_times}")
 
 if rank == 0:
     global_C = np.empty((N, N))
