@@ -5,11 +5,11 @@ comm = MPI.COMM_WORLD
 rank = comm.Get_rank()
 size = comm.Get_size()
 
-N = 3000
+N = 30000
 ITERATIONS = 1
 
 # Rank 0 receives 55% of the rows.
-rows_per_rank = [1500, 500, 500, 500]
+rows_per_rank = [15000, 5000, 5000, 5000]
 
 counts = np.array([rows * N for rows in rows_per_rank])
 displacements = np.array([0, counts[0], counts[0] + counts[1],

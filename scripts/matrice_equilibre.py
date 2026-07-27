@@ -5,7 +5,7 @@ comm = MPI.COMM_WORLD
 rank = comm.Get_rank()
 size = comm.Get_size()
 
-N = 3000
+N = 30000
 ITERATIONS = 1
 
 rows = N // size
