@@ -33,7 +33,17 @@ else:
 local_A = np.empty((local_rows, N))
 
 if rank == 0:
-    comm.Scatterv([A, counts, displacements, MPI.DOUBLE], local_A, root=0)
+    comm.Scatterv(
+        [A, counts, displacements, MPI.DOUBLE],
+        local_A,
+        root=0
+    )
+else:
+    comm.Scatterv(
+        None,
+        local_A,
+        root=0
+    )
 
 for iteration in range(ITERATIONS):
     local_C = np.zeros((local_rows, N))
