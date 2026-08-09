@@ -3,6 +3,9 @@ import yaml
 CONFIG_FILE = "config_wrapper.yml"
 OUTPUT_FILE = "mpi_monitoring_generated.c"
 
+# Wrapper implementations for the MPI functions supported by the monitoring system.
+# Each wrapper measures the time spent in the corresponding MPI operation,
+# calls the original implementation through PMPI, and records the resulting metrics.
 WRAPPERS = {
     "MPI_Send": """
 int MPI_Send(const void *buf, int count, MPI_Datatype datatype,
@@ -274,6 +277,9 @@ int MPI_Scatter(const void *sendbuf, int sendcount, MPI_Datatype sendtype,
 }
 
 
+# Common C code shared by all generated MPI wrappers.
+# It manages metric aggregation, synchronization, and periodic export
+# to the Prometheus textfile collector.
 COMMON_CODE = r"""
 #include <mpi.h>
 #include <pthread.h>
@@ -285,6 +291,7 @@ COMMON_CODE = r"""
 #define MAX_ENTRIES 4096
 #define FLUSH_INTERVAL_NS 1000000000ULL
 
+// Stores aggregated metrics for one MPI operation and peer.
 typedef struct {
     int used;
     char operation[32];
@@ -294,6 +301,7 @@ typedef struct {
     uint64_t duration_ns_total;
 } metric_entry_t;
 
+// Protects metric updates and file writes in multi-threaded applications.
 static pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
 static metric_entry_t entries[MAX_ENTRIES];
 
@@ -303,12 +311,15 @@ static uint64_t last_flush_ns = 0;
 static const char *prom_file = "/var/lib/node_exporter/textfile_collector/mpi_metrics.prom";
 static const char *tmp_file  = "/var/lib/node_exporter/textfile_collector/mpi_metrics.prom.tmp";
 
+// Returns a timestamp in nanoseconds for MPI duration measurements.
 static uint64_t now_ns(void) {
     struct timespec ts;
     clock_gettime(CLOCK_MONOTONIC, &ts);
     return (uint64_t)ts.tv_sec * 1000000000ULL + (uint64_t)ts.tv_nsec;
 }
 
+// Finds the metric entry associated with an operation and peer.
+// A new entry is initialized if no existing entry is found.
 static metric_entry_t *get_entry(const char *operation, int peer) {
     for (int i = 0; i < MAX_ENTRIES; i++) {
         if (entries[i].used &&
@@ -333,6 +344,9 @@ static metric_entry_t *get_entry(const char *operation, int peer) {
     return NULL;
 }
 
+// Writes the current metrics in Prometheus exposition format.
+// Metrics are first written to a temporary file and then renamed
+// to avoid Node Exporter reading a partially written file.
 static void flush_metrics(void) {
     FILE *f = fopen(tmp_file, "w");
     if (!f) {
@@ -380,6 +394,8 @@ static void flush_metrics(void) {
     last_flush_ns = now_ns();
 }
 
+// Updates the aggregated metrics for an intercepted MPI call.
+// Metrics are periodically exported according to FLUSH_INTERVAL_NS.
 static void record_metric(const char *operation, int peer,
                           uint64_t bytes, uint64_t duration_ns) {
     pthread_mutex_lock(&lock);
@@ -403,6 +419,7 @@ static void record_metric(const char *operation, int peer,
     pthread_mutex_unlock(&lock);
 }
 
+// Performs a final metric export before terminating the MPI environment.
 int MPI_Finalize(void) {
     pthread_mutex_lock(&lock);
 
@@ -420,19 +437,23 @@ int MPI_Finalize(void) {
 
 
 def main():
+    # Load the list of MPI functions to instrument.
     with open(CONFIG_FILE, "r") as f:
         config = yaml.safe_load(f)
 
     functions = config.get("functions", [])
 
+    # Start with the common metric collection and export code.
     code = COMMON_CODE
 
+    # Append only the wrappers enabled in the configuration file.
     for func in functions:
         if func not in WRAPPERS:
-            raise ValueError(f"Wrapper non défini pour {func}")
+            raise ValueError(f"Wrapper not defined for {func}")
         code += "\n"
         code += WRAPPERS[func]
 
+    # Generate the final C source file used to build the shared library.
     with open(OUTPUT_FILE, "w") as f:
         f.write(code)
 

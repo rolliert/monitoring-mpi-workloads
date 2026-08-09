@@ -41,6 +41,7 @@ The goal is to monitor both system-level metrics and MPI-specific metrics in ord
 +--------------+   +--------------+   +--------------+
 ```
 
+---
 
 ## Repository Structure
 
@@ -70,6 +71,8 @@ The goal is to monitor both system-level metrics and MPI-specific metrics in ord
 │   └── monitor.yml
 └── README.md
 
+---
+
 ### Main files
 
 * `hosts.yaml`: Ansible inventory defining the monitoring node, the MPI master node, and the MPI worker/slave nodes.
@@ -82,6 +85,23 @@ The goal is to monitor both system-level metrics and MPI-specific metrics in ord
 
 * `group_vars/monitor.yml`: Contains the list of MPI nodes scraped by Prometheus.
 
+
+---
+
+## Control Machine
+
+This repository must be executed from a control machine, which can itself be a virtual machine.
+
+The control machine is not part of the MPI cluster. Its role is to run the Ansible playbooks and configure the MPI nodes and the monitoring node remotely through SSH.
+
+Before starting the deployment, the control machine must therefore:
+
+- have Ansible installed;
+- have network access to all target virtual machines;
+- be able to connect to all target virtual machines through SSH;
+- have access to the SSH private key defined in `hosts.yaml`.
+
+All Ansible commands shown in this README must be executed from this control machine.
 
 ---
 
@@ -105,7 +125,8 @@ The project assumes the following roles:
 
 ## Deployment
 
-The full infrastructure can be deployed using the main Ansible playbook:
+The full infrastructure can be deployed using the main Ansible playbook.
+Run the following command from the control machine:
 
 ```bash
 ansible-playbook -i hosts.yaml site.yml
@@ -264,6 +285,8 @@ Password: admin
 
 After logging in, Grafana may ask to change the default password.
 
+---
+
 ### Add Prometheus as a data source
 
 Before displaying the dashboard, Prometheus must be added as a Grafana data source.
@@ -284,6 +307,8 @@ http://localhost:9090
 If Grafana and Prometheus run on the same monitoring node, `localhost:9090` is correct because Grafana connects to Prometheus from the monitoring node itself.
 
 Then click `Save & test`. Grafana should confirm that the Prometheus data source is working.
+
+---
 
 ### Import the dashboard
 
