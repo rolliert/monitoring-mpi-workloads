@@ -7,7 +7,7 @@ This project deploys and configures a MPI cluster with monitoring using Ansible.
 The infrastructure contains:
 
 - one MPI master node;
-- several MPI worker/slave nodes;
+- several MPI worker nodes;
 - one monitoring node;
 - Prometheus for metric collection;
 - Grafana for dashboards;
@@ -45,6 +45,7 @@ The goal is to monitor both system-level metrics and MPI-specific metrics in ord
 
 ## Repository Structure
 
+```text
 .
 ├── dashboard.json
 ├── hosts.yaml
@@ -70,12 +71,13 @@ The goal is to monitor both system-level metrics and MPI-specific metrics in ord
 ├── group_vars/
 │   └── monitor.yml
 └── README.md
+```
 
 ---
 
 ### Main files
 
-* `hosts.yaml`: Ansible inventory defining the monitoring node, the MPI master node, and the MPI worker/slave nodes.
+* `hosts.yaml`: Ansible inventory defining the monitoring node, the MPI master node, and the MPI worker nodes.
 
 * `site.yml`: Main Ansible entry point. It imports the playbooks required to configure the whole infrastructure.
 
@@ -119,7 +121,65 @@ The project assumes the following roles:
 
 * `monitor`: the node running Prometheus, Grafana, and Caddy.
 * `master`: the MPI master node used to launch MPI applications.
-* `slave`: the MPI worker nodes used to execute MPI processes.
+* `worker`: the MPI worker nodes used to execute MPI processes.
+
+---
+
+## Network Configuration
+
+Before running the deployment, the network addresses must be adapted to the target infrastructure.
+
+### Ansible inventory
+
+Edit `hosts.yaml` and replace the `ansible_host` values with the IP addresses of the corresponding virtual machines:
+
+- the monitoring node;
+- the MPI master node;
+- the MPI worker nodes.
+
+Example:
+
+```yaml
+vm1:
+  ansible_host: 192.168.1.100
+```
+Add more VMs if necessary.
+
+
+The MPI node addresses must also be configured in `group_vars/monitor.yml`
+so that Prometheus knows which Node Exporter instances to scrape.
+
+Example:
+
+```yaml
+mpi_targets:
+  - 192.168.1.100
+  - 192.168.1.101
+  - 192.168.1.102
+  - 192.168.1.103
+```
+
+---
+
+### MPI host file
+
+The MPI nodes used to run applications must also be listed in:
+
+```text
+scripts/hosts.txt
+```
+This file is used by Open MPI to determine on which nodes the MPI processes can be started.
+
+Example:
+
+```text
+192.168.1.100
+192.168.1.101
+192.168.1.102
+192.168.1.103
+```
+These addresses must correspond to the MPI nodes defined in `hosts.yaml`
+and must be reachable from the MPI master node through SSH.
 
 ---
 
@@ -135,7 +195,7 @@ ansible-playbook -i hosts.yaml site.yml
 This command runs all the required playbooks in the correct order:
 
 1. install and configure the MPI environment;
-2. generate the MPI wrapper and deploy it on each VM;
+2. generate the MPI wrapper and deploy it on each MPI node;
 3. install and configure the monitoring stack;
 4. configure SSH access between the MPI master and the worker nodes.
 
