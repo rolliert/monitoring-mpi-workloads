@@ -4,19 +4,19 @@
   "metadata": {
     "name": "rYdddlPWk1",
     "namespace": "default",
-    "uid": "5ec1603f-9b4a-4126-85dc-fd8b1382c621",
-    "resourceVersion": "1781267088454006",
-    "generation": 40,
-    "creationTimestamp": "2026-06-11T07:20:41Z",
+    "uid": "1ae4d31d-c742-46a9-8b36-27841674a633",
+    "resourceVersion": "1786347940334992",
+    "generation": 10,
+    "creationTimestamp": "2026-06-23T14:28:05Z",
     "labels": {
-      "grafana.app/deprecatedInternalID": "2322434516361216"
+      "grafana.app/deprecatedInternalID": "2275047924580352"
     },
     "annotations": {
-      "grafana.app/createdBy": "user:bfobfjuz8rt34e",
+      "grafana.app/createdBy": "user:efpzdot6ztfr4e",
       "grafana.app/folder": "",
       "grafana.app/saved-from-ui": "Grafana v13.0.2 (3fcdbc5a)",
-      "grafana.app/updatedBy": "user:bfobfjuz8rt34e",
-      "grafana.app/updatedTimestamp": "2026-06-12T12:24:48Z"
+      "grafana.app/updatedBy": "user:efpzdot6ztfr4e",
+      "grafana.app/updatedTimestamp": "2026-08-10T07:45:40Z"
     }
   },
   "spec": {
@@ -3077,7 +3077,7 @@
         "kind": "Panel",
         "spec": {
           "id": 357,
-          "title": "Time of the last data",
+          "title": "Time since last MPI update",
           "description": "",
           "links": [],
           "data": {
@@ -3107,7 +3107,9 @@
                 }
               ],
               "transformations": [],
-              "queryOptions": {}
+              "queryOptions": {
+                "interval": "5s"
+              }
             }
           },
           "vizConfig": {
@@ -3164,7 +3166,7 @@
         "kind": "Panel",
         "spec": {
           "id": 360,
-          "title": "Slowest MPI operations",
+          "title": "MPI operations consuming the most total time",
           "description": "",
           "links": [],
           "data": {
@@ -3183,7 +3185,7 @@
                       },
                       "spec": {
                         "editorMode": "code",
-                        "expr": "topk(5,\r\n  1000 *\r\n  sum by (operation) (\r\n    rate(mpi_duration_seconds_total{job=~\"$job\", instance=~\"$node\"}[1m])\r\n  )\r\n  /\r\n  sum by (operation) (\r\n    rate(mpi_calls_total{job=~\"$job\", instance=~\"$node\"}[1m])\r\n  )\r\n)",
+                        "expr": "topk(\r\n  5,\r\n  sum by (operation) (\r\n    increase(\r\n      mpi_duration_seconds_total{\r\n        job=~\"$job\",\r\n        instance=~\"$node\"\r\n      }[$__range]\r\n    )\r\n  )\r\n)",
                         "legendFormat": "__auto",
                         "range": true
                       }
@@ -3194,7 +3196,9 @@
                 }
               ],
               "transformations": [],
-              "queryOptions": {}
+              "queryOptions": {
+                "interval": "5s"
+              }
             }
           },
           "vizConfig": {
@@ -3228,7 +3232,7 @@
               },
               "fieldConfig": {
                 "defaults": {
-                  "unit": "ms",
+                  "unit": "s",
                   "thresholds": {
                     "mode": "absolute",
                     "steps": [
@@ -3286,7 +3290,9 @@
                 }
               ],
               "transformations": [],
-              "queryOptions": {}
+              "queryOptions": {
+                "interval": "5s"
+              }
             }
           },
           "vizConfig": {
@@ -3313,6 +3319,21 @@
               },
               "fieldConfig": {
                 "defaults": {
+                  "mappings": [
+                    {
+                      "type": "value",
+                      "options": {
+                        "0": {
+                          "text": "Inactive",
+                          "index": 1
+                        },
+                        "1": {
+                          "text": "Active",
+                          "index": 0
+                        }
+                      }
+                    }
+                  ],
                   "thresholds": {
                     "mode": "absolute",
                     "steps": [
@@ -3371,7 +3392,9 @@
                 }
               ],
               "transformations": [],
-              "queryOptions": {}
+              "queryOptions": {
+                "interval": "5s"
+              }
             }
           },
           "vizConfig": {
@@ -3451,7 +3474,9 @@
                 }
               ],
               "transformations": [],
-              "queryOptions": {}
+              "queryOptions": {
+                "interval": "5s"
+              }
             }
           },
           "vizConfig": {
@@ -3570,7 +3595,9 @@
                 }
               ],
               "transformations": [],
-              "queryOptions": {}
+              "queryOptions": {
+                "interval": "5s"
+              }
             }
           },
           "vizConfig": {
@@ -3674,7 +3701,7 @@
                       },
                       "spec": {
                         "editorMode": "code",
-                        "expr": "1000 *\r\nsum by (operation) (\r\n  rate(mpi_duration_seconds_total{job=~\"$job\", instance=~\"$node\"}[1m])\r\n)\r\n/\r\nsum by (operation) (\r\n  rate(mpi_calls_total{job=~\"$job\", instance=~\"$node\"}[1m])\r\n)",
+                        "expr": "1000 *\r\nsum by (operation) (\r\n  rate(mpi_duration_seconds_total{job=~\"$job\", instance=~\"$node\"}[$__rate_interval])\r\n)\r\n/\r\nsum by (operation) (\r\n  rate(mpi_calls_total{job=~\"$job\", instance=~\"$node\"}[$__rate_interval])\r\n)",
                         "legendFormat": "__auto",
                         "range": true
                       }
@@ -3685,7 +3712,9 @@
                 }
               ],
               "transformations": [],
-              "queryOptions": {}
+              "queryOptions": {
+                "interval": "5s"
+              }
             }
           },
           "vizConfig": {
@@ -3800,7 +3829,9 @@
                 }
               ],
               "transformations": [],
-              "queryOptions": {}
+              "queryOptions": {
+                "interval": "5s"
+              }
             }
           },
           "vizConfig": {
@@ -3885,8 +3916,8 @@
         "kind": "Panel",
         "spec": {
           "id": 367,
-          "title": "Rank imbalance",
-          "description": "",
+          "title": "MPI call-rate imbalance",
+          "description": "Ratio between the highest MPI call rate among ranks and the average MPI call rate.\nA value close to 1 indicates similar MPI call rates across ranks.",
           "links": [],
           "data": {
             "kind": "QueryGroup",
@@ -3915,7 +3946,9 @@
                 }
               ],
               "transformations": [],
-              "queryOptions": {}
+              "queryOptions": {
+                "interval": "5s"
+              }
             }
           },
           "vizConfig": {
@@ -5846,7 +5879,7 @@
       "timezone": "browser",
       "from": "now-24h",
       "to": "now",
-      "autoRefresh": "1m",
+      "autoRefresh": "5s",
       "autoRefreshIntervals": [
         "5s",
         "10s",
@@ -5862,7 +5895,7 @@
       "hideTimepicker": false,
       "fiscalYearStartMonth": 0
     },
-    "title": "Node Exporter Full 2",
+    "title": "MPI Workload Monitoring",
     "variables": [
       {
         "kind": "DatasourceVariable",
