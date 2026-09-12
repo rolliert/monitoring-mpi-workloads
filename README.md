@@ -326,7 +326,7 @@ http://<monitoring-node-ip>
 
 If the monitoring node is not directly reachable from the local machine, an SSH tunnel can be used. From the local machine, run:
 
-```bash
+```powershell
 ssh -i .\path_to_your_ssh_key -N -L 8080:localhost:80 user@<monitoring-node-ip>
 ```
 
